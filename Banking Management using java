@@ -1,0 +1,210 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+// Account class to represent a bank account
+class Account {
+    private static int accountCounter = 1000;
+    private int accountNumber;
+    private String accountHolderName;
+    private double balance;
+
+    public Account(String accountHolderName, double initialDeposit) {
+        this.accountNumber = accountCounter++;
+        this.accountHolderName = accountHolderName;
+        this.balance = initialDeposit;
+    }
+
+    public int getAccountNumber() {
+        return accountNumber;
+    }
+
+    public String getAccountHolderName() {
+        return accountHolderName;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+            System.out.println("Deposit successful. Updated balance: $" + balance);
+        } else {
+            System.out.println("Invalid deposit amount.");
+        }
+    }
+
+    public void withdraw(double amount) {
+        if (amount > 0 && amount <= balance) {
+            balance -= amount;
+            System.out.println("Withdrawal successful. Updated balance: $" + balance);
+        } else {
+            System.out.println("Invalid withdrawal amount or insufficient balance.");
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Account Number: " + accountNumber + ", Holder: " + accountHolderName + ", Balance: $" + balance;
+    }
+}
+
+// Bank class to manage accounts
+class Bank {
+    private ArrayList<Account> accounts;
+
+    public Bank() {
+        accounts = new ArrayList<>();
+    }
+
+    public void createAccount(String name, double initialDeposit) {
+        Account account = new Account(name, initialDeposit);
+        accounts.add(account);
+        System.out.println("Account created successfully. Account Number: " + account.getAccountNumber());
+    }
+
+    public void deposit(int accountNumber, double amount) {
+        Account account = findAccount(accountNumber);
+        if (account != null) {
+            account.deposit(amount);
+        } else {
+            System.out.println("Account not found.");
+        }
+    }
+
+    public void withdraw(int accountNumber, double amount) {
+        Account account = findAccount(accountNumber);
+        if (account != null) {
+            account.withdraw(amount);
+        } else {
+            System.out.println("Account not found.");
+        }
+    }
+
+    public void transfer(int fromAccountNumber, int toAccountNumber, double amount) {
+        Account fromAccount = findAccount(fromAccountNumber);
+        Account toAccount = findAccount(toAccountNumber);
+
+        if (fromAccount != null && toAccount != null) {
+            if (fromAccount.getBalance() >= amount) {
+                fromAccount.withdraw(amount);
+                toAccount.deposit(amount);
+                System.out.println("Transfer successful.");
+            } else {
+                System.out.println("Insufficient balance in source account.");
+            }
+        } else {
+            System.out.println("One or both accounts not found.");
+        }
+    }
+
+    public void viewAccount(int accountNumber) {
+        Account account = findAccount(accountNumber);
+        if (account != null) {
+            System.out.println(account);
+        } else {
+            System.out.println("Account not found.");
+        }
+    }
+
+    public void listAllAccounts() {
+        if (accounts.isEmpty()) {
+            System.out.println("No accounts in the bank.");
+        } else {
+            for (Account account : accounts) {
+                System.out.println(account);
+            }
+        }
+    }
+
+    private Account findAccount(int accountNumber) {
+        for (Account account : accounts) {
+            if (account.getAccountNumber() == accountNumber) {
+                return account;
+            }
+        }
+        return null;
+    }
+}
+
+// Main class to interact with the Banking Management System
+public class BankingManagementSystem {
+    public static void main(String[] args) {
+        Bank bank = new Bank();
+        Scanner scanner = new Scanner(System.in);
+        boolean exit = false;
+
+        while (!exit) {
+            System.out.println("\nBanking Management System");
+            System.out.println("1. Create Account");
+            System.out.println("2. Deposit");
+            System.out.println("3. Withdraw");
+            System.out.println("4. Transfer");
+            System.out.println("5. View Account Details");
+            System.out.println("6. List All Accounts");
+            System.out.println("7. Exit");
+            System.out.print("Enter your choice: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter account holder name: ");
+                    String name = scanner.nextLine();
+                    System.out.print("Enter initial deposit amount: ");
+                    double initialDeposit = scanner.nextDouble();
+                    bank.createAccount(name, initialDeposit);
+                    break;
+
+                case 2:
+                    System.out.print("Enter account number: ");
+                    int accountNumber = scanner.nextInt();
+                    System.out.print("Enter deposit amount: ");
+                    double depositAmount = scanner.nextDouble();
+                    bank.deposit(accountNumber, depositAmount);
+                    break;
+
+                case 3:
+                    System.out.print("Enter account number: ");
+                    accountNumber = scanner.nextInt();
+                    System.out.print("Enter withdrawal amount: ");
+                    double withdrawalAmount = scanner.nextDouble();
+                    bank.withdraw(accountNumber, withdrawalAmount);
+                    break;
+
+                case 4:
+                    System.out.print("Enter source account number: ");
+                    int fromAccount = scanner.nextInt();
+                    System.out.print("Enter destination account number: ");
+                    int toAccount = scanner.nextInt();
+                    System.out.print("Enter transfer amount: ");
+                    double transferAmount = scanner.nextDouble();
+                    bank.transfer(fromAccount, toAccount, transferAmount);
+                    break;
+
+                case 5:
+                    System.out.print("Enter account number: ");
+                    accountNumber = scanner.nextInt();
+                    bank.viewAccount(accountNumber);
+                    break;
+
+                case 6:
+                    System.out.println("Listing all accounts:");
+                    bank.listAllAccounts();
+                    break;
+
+                case 7:
+                    exit = true;
+                    System.out.println("Exiting Banking Management System. Goodbye!");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+
+        scanner.close();
+    }
+}
